@@ -120,6 +120,7 @@ interface LearningState {
   currentPath: LearningPath | null;
   userProgress: UserProgress | null;
   availablePaths: LearningPath[];
+  interactions: any[];
   isLoading: boolean;
   error: string | null;
   
@@ -129,6 +130,9 @@ interface LearningState {
   loadPathProgress: (pathId: string) => Promise<void>;
   createPath: (data: Partial<LearningPath>) => Promise<LearningPath>;
   generatePath: (topic: string, options?: any) => Promise<string>; // Returns task ID
+  recordInteraction: (interaction: any) => void;
+  markCardAsComplete: (pathId: string, cardId: string) => void;
+  updateProgress: (pathId: string, currentCard: number, totalCards: number) => void;
   clearError: () => void;
 }
 
@@ -138,6 +142,7 @@ export const useLearningStore = create<LearningState>()(
       currentPath: null,
       userProgress: null,
       availablePaths: [],
+      interactions: [],
       isLoading: false,
       error: null,
 
@@ -213,6 +218,55 @@ export const useLearningStore = create<LearningState>()(
           });
           throw error;
         }
+      },
+
+      recordInteraction: (interaction) => {
+        set((state) => ({
+          interactions: [...state.interactions, interaction]
+        }));
+        
+        // In a real app, this would also send to the backend
+        console.log('Recorded interaction:', interaction);
+      },
+
+      markCardAsComplete: (pathId: string, cardId: string) => {
+        // In a real app, this would send to the backend
+        console.log('Card completed:', { pathId, cardId });
+        
+        // Update local progress
+        set((state) => {
+          if (state.userProgress && state.userProgress.learning_path_id === pathId) {
+            return {
+              userProgress: {
+                ...state.userProgress,
+                current_card_id: cardId,
+                last_accessed: new Date().toISOString(),
+              }
+            };
+          }
+          return state;
+        });
+      },
+
+      updateProgress: (pathId: string, currentCard: number, totalCards: number) => {
+        const completionPercentage = Math.round((currentCard / totalCards) * 100);
+        
+        // In a real app, this would send to the backend
+        console.log('Progress updated:', { pathId, currentCard, totalCards, completionPercentage });
+        
+        // Update local progress
+        set((state) => {
+          if (state.userProgress && state.userProgress.learning_path_id === pathId) {
+            return {
+              userProgress: {
+                ...state.userProgress,
+                completion_percentage: completionPercentage,
+                last_accessed: new Date().toISOString(),
+              }
+            };
+          }
+          return state;
+        });
       },
 
       clearError: () => set({ error: null }),

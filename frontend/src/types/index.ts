@@ -40,14 +40,36 @@ export interface MicroCard {
   id: string;
   learning_path_id: string;
   title: string;
-  content: string;
-  card_type: 'concept' | 'example' | 'practice' | 'quiz';
-  difficulty_level: 'beginner' | 'intermediate' | 'advanced';
+  content: MicroCardContent;
+  type: 'concept' | 'example' | 'practice' | 'quiz';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   prerequisites: string[];
-  estimated_time_minutes: number;
+  estimatedTime: string;
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
+}
+
+export interface MicroCardContent {
+  text?: string;
+  question?: string;
+  hiddenContent?: string;
+  imageUrl?: string;
+  codeSnippet?: string;
+  keyPoints?: string[];
+  examples?: string[];
+  resources?: { title: string; url: string; type: string }[];
+}
+
+export interface CardInteraction {
+  cardId: string;
+  pathId: string;
+  type: 'content_revealed' | 'bookmark_added' | 'bookmark_removed' | 
+        'like_added' | 'like_removed' | 'navigation_next' | 'navigation_previous' | 
+        'card_completed' | 'time_spent';
+  timeSpent: number;
+  timestamp: string;
+  additionalData?: Record<string, any>;
 }
 
 export interface UserProgress {

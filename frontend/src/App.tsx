@@ -1,15 +1,22 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthForm } from './components/auth';
+import { MicroCardDemo } from './pages';
 import { useAuthStore } from './store';
 import './App.css';
 
 function App() {
   const { user, isAuthenticated, loadUser } = useAuthStore();
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     // Load user data if there's a stored token
     loadUser();
   }, [loadUser]);
+
+  // For development - show demo directly
+  if (showDemo) {
+    return <MicroCardDemo />;
+  }
 
   // Show authenticated dashboard if user is logged in
   if (isAuthenticated && user) {
@@ -17,10 +24,10 @@ function App() {
   }
 
   // Show landing page with auth form
-  return <LandingPage />;
+  return <LandingPage onShowDemo={() => setShowDemo(true)} />;
 }
 
-function LandingPage() {
+function LandingPage({ onShowDemo }: { onShowDemo: () => void }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
       {/* Header */}
@@ -62,6 +69,16 @@ function LandingPage() {
           
           {/* Auth Form */}
           <AuthForm />
+          
+          {/* Demo Button */}
+          <div className="mt-6 text-center">
+            <button
+              onClick={onShowDemo}
+              className="text-primary-600 hover:text-primary-700 font-medium transition-colors border border-primary-200 hover:border-primary-300 px-6 py-3 rounded-lg"
+            >
+              Try Interactive Demo →
+            </button>
+          </div>
         </div>
 
         {/* Features Preview */}
