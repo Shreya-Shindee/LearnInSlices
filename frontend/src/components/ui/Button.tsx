@@ -1,5 +1,11 @@
 import React from 'react';
-import { cn } from '../../utils/cn';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+// Inline cn utility to avoid module resolution issues
+const cn = (...inputs: (string | undefined | null | false)[]): string => {
+  return twMerge(clsx(inputs));
+};
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';

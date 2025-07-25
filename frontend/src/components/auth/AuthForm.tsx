@@ -7,6 +7,7 @@ interface AuthFormProps {
 }
 
 export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
+  const { login, register, isLoading, error, clearError } = useAuthStore();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -42,6 +43,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
       console.error('Auth error:', err);
     }
   };
+
+  const toggleMode = () => {
     setIsLogin(!isLogin);
     setFormData({
       email: '',
@@ -58,7 +61,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
       <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
         <button
           type="button"
-          onClick={() => setIsLogin(true)}
+          onClick={toggleMode}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
             isLogin 
               ? 'bg-white text-primary-600 shadow-sm' 
@@ -69,7 +72,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess }) => {
         </button>
         <button
           type="button"
-          onClick={() => setIsLogin(false)}
+          onClick={toggleMode}
           className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
             !isLogin 
               ? 'bg-white text-primary-600 shadow-sm' 
