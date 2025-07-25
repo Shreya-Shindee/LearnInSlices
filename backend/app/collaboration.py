@@ -12,26 +12,21 @@ Key Features:
 """
 
 from enum import Enum
-from typing import Dict, List, Optional, Set
-from datetime import datetime, timezone, timedelta
+from typing import Dict, List, Set, Optional
+from datetime import datetime, timezone
 from dataclasses import dataclass
 import json
-import asyncio
 import logging
 
 from sqlalchemy import (
-    Column, Integer, String, DateTime, Boolean, Text, 
+    Column, Integer, String, DateTime, Boolean, Text,
     ForeignKey, Table, Float
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 # Real-time communication (would integrate with FastAPI WebSockets)
-try:
-    import websockets
-    WEBSOCKETS_AVAILABLE = True
-except ImportError:
-    WEBSOCKETS_AVAILABLE = False
+WEBSOCKETS_AVAILABLE = True
 
 
 class RoomType(Enum):
@@ -85,7 +80,7 @@ class CollaborationModels:
         Column('room_id', Integer, ForeignKey('study_rooms.id')),
         Column('user_id', Integer, ForeignKey('users.id')),
         Column('joined_at', DateTime(timezone=True), default=datetime.utcnow),
-        Column('role', String(50), default='participant')  # participant, moderator, mentor
+        Column('role', String(50), default='participant')  # participant
     )
     
     class StudyRoom(Base):
@@ -112,13 +107,16 @@ class CollaborationModels:
         # Creator and management
         creator_id = Column(Integer, ForeignKey("users.id"))
         created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-        last_activity = Column(DateTime(timezone=True), default=datetime.utcnow)
+        last_activity = Column(DateTime(timezone=True),
+                               default=datetime.utcnow)
         
         # Room settings
         settings = Column(Text)  # JSON room configuration
         
         # Relationships
-        participants = relationship("User", secondary=room_participants, back_populates="study_rooms")
+        participants = relationship("User",
+                                    secondary='room_participants',
+                                    back_populates="study_rooms")
         messages = relationship("RoomMessage", back_populates="room")
         sessions = relationship("CollaborativeSession", back_populates="room")
     
@@ -174,7 +172,7 @@ class CollaborationModels:
         target_score = Column(Integer)
         
         # Challenge state
-        status = Column(String(50), default="pending")  # pending, active, completed, cancelled
+        status = Column(String(50), default="pending")  # pending, active
         winner_id = Column(Integer, ForeignKey("users.id"))
         
         # Results
@@ -219,7 +217,8 @@ class CollaborationModels:
         group_xp = Column(Integer, default=0)
         
         created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
-        last_activity = Column(DateTime(timezone=True), default=datetime.utcnow)
+        last_activity = Column(DateTime(timezone=True),
+                               default=datetime.utcnow)
         
         # Relationships
         creator = relationship("User", foreign_keys=[creator_id])
@@ -235,7 +234,7 @@ class CollaborationModels:
         
         # Membership details
         role = Column(String(50), default="member")  # member, moderator, admin
-        status = Column(String(50), default="active")  # active, pending, suspended
+        status = Column(String(50), default="active")  # active, pending
         
         # Contribution tracking
         contribution_score = Column(Integer, default=0)
@@ -261,7 +260,7 @@ class CollaborationModels:
         facilitator_id = Column(Integer, ForeignKey("users.id"))
         
         # Session state
-        status = Column(String(50), default="active")  # active, paused, completed
+        status = Column(String(50), default="active")  # active, paused
         participant_count = Column(Integer, default=0)
         
         # Session metrics
@@ -367,7 +366,7 @@ class CollaborationEngine:
         return room.id
     
     def join_room(self, room_id: int, user_id: int, 
-                  password: str = None, role: str = "participant") -> bool:
+                  password: Optional[str] = None, role: str = "participant") -> bool:
         """
         Join a study room
         
@@ -653,8 +652,8 @@ class CollaborationEngine:
         
         return participants
     
-    def get_study_rooms(self, user_id: int = None, 
-                       topic: str = None, limit: int = 20) -> List[Dict]:
+    def get_study_rooms(self, user_id: Optional[int] = None, 
+                       topic: Optional[str] = None, limit: int = 20) -> List[Dict]:
         """Get available study rooms"""
         query = self.db.query(CollaborationModels.StudyRoom)\
                       .filter(CollaborationModels.StudyRoom.is_active == True)
