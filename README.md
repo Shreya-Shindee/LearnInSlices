@@ -32,15 +32,35 @@ LearnInSlices/
 
 ```bash
 # Clone and setup
-git clone <repository-url>
+git clone https://github.com/Shreya-Shindee/LearnInSlices.git
 cd LearnInSlices
 
-# Start all services
-docker-compose up -d
+# Install backend dependencies
+cd backend
+pip install -r requirements.txt
 
-# Access the app
-open http://localhost:3000
+# Run Stage 1 tests
+python test_stage1.py
+
+# Run interactive demo
+cd ..
+python demo.py
 ```
+
+## 🎮 Live Demo
+
+Experience Stage 1 functionality with our interactive demo:
+
+```bash
+python demo.py
+```
+
+The demo showcases:
+- 🧠 **Spaced Repetition Algorithms** (SM2 & Leitner)
+- 📚 **Microlearning Content Creation**
+- 🎯 **Adaptive Scheduling** with confidence adjustments
+- 🏆 **Gamification System** with XP and streaks
+- 📈 **Performance Analytics** and retention tracking
 
 ## 🛠️ Development Stages
 
