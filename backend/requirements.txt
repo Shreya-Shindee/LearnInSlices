@@ -1,0 +1,64 @@
+# LearnInSlices Backend Dependencies
+# Core framework and database
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+alembic==1.13.1
+psycopg2-binary==2.9.9
+redis==5.0.1
+
+# Authentication and security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Background tasks
+celery==5.3.4
+celery[redis]==5.3.4
+
+# Validation and serialization
+pydantic==2.5.1
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# ML and embeddings
+torch==2.1.1+cpu
+transformers==4.36.2
+sentence-transformers==2.2.2
+huggingface-hub==0.19.4
+numpy==1.24.3
+
+# HTTP and API utilities
+httpx==0.25.2
+requests==2.31.0
+aiofiles==23.2.1
+
+# Real-time features
+python-socketio==5.10.0
+python-engineio==4.7.1
+
+# Development and testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Utilities
+python-dotenv==1.0.0
+structlog==23.2.0
+rich==13.7.0
+typer==0.9.0
+
+# Database migrations and tools
+asyncpg==0.29.0  # Async PostgreSQL driver
+pgvector==0.2.4  # Vector similarity extension
+
+# Content processing
+beautifulsoup4==4.12.2
+lxml==4.9.3
+markdownify==0.11.6
+
+# Analytics (self-hosted)
+posthog==3.0.2
