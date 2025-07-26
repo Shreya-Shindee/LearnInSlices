@@ -1,12 +1,519 @@
 @import "tailwindcss";
 
-/* Custom styles for the LearnInSlices app */
+/* Enhanced styles for the LearnInSlices app */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     font-family: 'Inter', system-ui, sans-serif;
     background-color: rgb(249 250 251);
     color: rgb(17 24 39);
+    line-height: 1.6;
+  }
+  
+  * {
+    box-sizing: border-box;
   }
 }
 
-/* Component styles are handled by Tailwind classes directly in components */
+/* Enhanced animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+  
+  .animate-slide-left {
+    animation: slideLeft 0.4s ease-in-out;
+  }
+  
+  .animate-slide-right {
+    animation: slideRight 0.4s ease-in-out;
+  }
+  
+  .animate-bounce-in {
+    animation: bounceIn 0.6s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3) rotate(-5deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(147, 51, 234, 0.4);
+  }
+}
+
+/* Enhanced card swipe effects */
+.card-swipe-left {
+  transform: translateX(-120%) rotate(-15deg) scale(0.8);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.card-swipe-right {
+  transform: translateX(120%) rotate(15deg) scale(0.8);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.card-bounce-back {
+  transform: translateX(0) rotate(0deg) scale(1);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Enhanced card entrance animations */
+.card-enter {
+  animation: cardEnter 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes cardEnter {
+  0% {
+    transform: translateY(100px) scale(0.8) rotate(5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Enhanced video overlay effects */
+.video-overlay {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(147, 51, 234, 0.9));
+  backdrop-filter: blur(15px);
+  border-radius: 16px;
+}
+
+.video-play-button {
+  animation: pulse 2.5s infinite;
+  transition: all 0.3s ease;
+}
+
+.video-play-button:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.8;
+  }
+}
+
+/* Enhanced quiz animation effects */
+.quiz-modal-enter {
+  animation: quizModalEnter 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes quizModalEnter {
+  0% {
+    transform: scale(0.6) translateY(100px) rotate(-5deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.quiz-option-correct {
+  animation: correctAnswer 0.8s ease;
+}
+
+@keyframes correctAnswer {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.05);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.quiz-option-wrong {
+  animation: wrongAnswer 0.8s ease;
+}
+
+@keyframes wrongAnswer {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* Enhanced progress bar animations */
+.progress-bar {
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #10B981);
+  background-size: 300% 100%;
+  animation: progressGradient 4s ease infinite;
+}
+
+@keyframes progressGradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Enhanced swipe indicators */
+.swipe-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.swipe-indicator.left {
+  left: 30px;
+  animation: swipeLeft 1.5s ease infinite;
+}
+
+.swipe-indicator.right {
+  right: 30px;
+  animation: swipeRight 1.5s ease infinite;
+}
+
+@keyframes swipeLeft {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-50%) translateX(-15px);
+    opacity: 1;
+  }
+}
+
+@keyframes swipeRight {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-50%) translateX(15px);
+    opacity: 1;
+  }
+}
+
+/* Enhanced video playlist animations */
+.video-playlist-item {
+  transition: all 0.4s ease;
+}
+
+.video-playlist-item:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.video-playlist-item.active {
+  animation: videoItemActive 0.6s ease;
+}
+
+@keyframes videoItemActive {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Enhanced content reveal animations */
+.content-reveal {
+  animation: contentReveal 0.6s ease-out;
+}
+
+@keyframes contentReveal {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    max-height: 300px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced streak counter animation */
+.streak-counter {
+  animation: streakBounce 0.8s ease;
+}
+
+@keyframes streakBounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(1deg);
+  }
+  75% {
+    transform: scale(1.05) rotate(-1deg);
+  }
+}
+
+/* Enhanced loading animations for videos */
+.video-loading {
+  animation: videoLoading 2s ease infinite;
+}
+
+@keyframes videoLoading {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Enhanced mobile touch feedback */
+@media (max-width: 768px) {
+  .card-container {
+    touch-action: pan-x;
+  }
+  
+  .touch-feedback {
+    animation: touchFeedback 0.2s ease;
+  }
+  
+  @keyframes touchFeedback {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(0.95);
+    }
+  }
+}
+
+/* Enhanced glassmorphism effects */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-effect-dark {
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced button hover effects */
+.btn-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-enhanced:hover::before {
+  left: 100%;
+}
+
+.btn-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced scroll animations */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.6s ease;
+}
+
+.scroll-animate.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Enhanced focus states for accessibility */
+.focus-enhanced:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+  transform: scale(1.02);
+}
+
+/* Enhanced card flip animation */
+.card-flip {
+  perspective: 1000px;
+}
+
+.card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+}
+
+.card-flip.flipped .card-flip-inner {
+  transform: rotateY(180deg);
+}
+
+.card-flip-front, .card-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+}
+
+.card-flip-back {
+  transform: rotateY(180deg);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb, #7c3aed);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #1f2937;
+  }
+}
+
+/* Enhanced component styles are handled by Tailwind classes directly in components */

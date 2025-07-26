@@ -1,0 +1,1 @@
+export { LandingPageIntegration } from './LandingPageIntegration';

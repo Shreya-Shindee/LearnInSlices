@@ -11,21 +11,25 @@ from datetime import datetime, timezone, timedelta
 # Add the backend directory to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
 
-from app.models import (
-    User, Skill, MicroCard, Review, XPTransaction,
-    DifficultyLevel, CardType, ReviewResult, XPEventType
-)
-from app.spacedrep import SpacedRepetitionEngine, SchedulingAlgorithm
-import uuid
+try:
+    from app.spacedrep import SpacedRepetitionEngine, SchedulingAlgorithm
+    from app.models import (
+        User, Skill, MicroCard, Review, XPTransaction,
+        DifficultyLevel, CardType, ReviewResult, XPEventType
+    )
+except ImportError as e:
+    print(f"Error importing modules: {e}")
+    print("Make sure you're running from the project root directory")
+    sys.exit(1)
 
 
 def demo_microlearning_flow():
     """Demonstrate a complete microlearning flow"""
     print("🧠 LearnInSlices - Adaptive Microlearning Platform Demo")
     print("=" * 60)
-    
+
     print("\n📚 1. Creating Learning Content...")
-    
+
     # Create a learner
     learner = User(
         email="alice@example.com",
@@ -39,7 +43,7 @@ def demo_microlearning_flow():
     print(f"✓ Created learner: {learner.full_name} ({learner.email})")
     print(f"  - Daily goal: {learner.daily_goal_minutes} minutes")
     print(f"  - Current streak: {learner.learning_streak} days")
-    
+
     # Create a skill
     python_skill = Skill(
         name="Python Programming",
@@ -54,7 +58,7 @@ def demo_microlearning_flow():
     print(f"  - Difficulty: {python_skill.difficulty_level.value}")
     print(f"  - Estimated time: {python_skill.estimated_hours} hours")
     print(f"  - Tags: {', '.join(python_skill.tags)}")
-    
+
     # Create micro-cards
     cards = [
         MicroCard(
@@ -66,12 +70,12 @@ def demo_microlearning_flow():
                 "examples": [
                     "x = 5  # Integer",
                     "name = 'Alice'  # String",
-                    "pi = 3.14159  # Float", 
+                    "pi = 3.14159  # Float",
                     "is_valid = True  # Boolean"
                 ],
                 "key_points": [
                     "Variables are created when you assign a value",
-                    "Python determines the type automatically", 
+                    "Python determines the type automatically",
                     "Variable names should be descriptive"
                 ]
             },
@@ -98,41 +102,45 @@ def demo_microlearning_flow():
             repetitions=0
         )
     ]
-    
+
     print(f"\n✓ Created {len(cards)} micro-cards:")
     for i, card in enumerate(cards, 1):
         print(f"  {i}. {card.title} ({card.content_type.value})")
         print(f"     - Time: {card.estimated_time_minutes} min")
-    
+
     print("\n🧠 2. Spaced Repetition in Action...")
-    
+
     # Initialize spaced repetition engine
     sr_engine = SpacedRepetitionEngine(algorithm=SchedulingAlgorithm.SM2)
-    print(f"✓ Initialized {sr_engine.algorithm.value.upper()} spaced repetition engine")
-    
+    print(
+        f"✓ Initialized {
+            sr_engine.algorithm.value.upper()} spaced repetition engine")
+
     # Simulate learning sessions
     print("\n📈 Simulating Learning Sessions:")
-    
+    reviews = []  # Store review records
+
     for session_day in range(1, 4):
         print(f"\n--- Day {session_day} Learning Session ---")
-        
+
         for card in cards:
             # Simulate different performance levels
             if session_day == 1:
                 result = ReviewResult.GOOD
                 confidence = 3
             elif session_day == 2:
-                result = ReviewResult.EASY if card.title.startswith("Python Variables") else ReviewResult.HARD
+                result = ReviewResult.EASY if card.title.startswith(
+                    "Python Variables") else ReviewResult.HARD
                 confidence = 4 if result == ReviewResult.EASY else 2
             else:
                 result = ReviewResult.EASY
                 confidence = 5
-            
+
             # Calculate next review schedule
             schedule = sr_engine.calculate_next_review(
                 card, result, confidence_level=confidence
             )
-            
+
             # Create review record
             review = Review(
                 user_id=learner.id,
@@ -147,17 +155,20 @@ def demo_microlearning_flow():
                 next_review_date=schedule.next_review_date,
                 attempts=1
             )
-            
+
+            # Store the review (in practice, this would be saved to database)
+            reviews.append(review)
+
             # Update card parameters
             card.ease_factor = schedule.ease_factor
             card.interval_days = schedule.interval_days
             card.repetitions = schedule.repetitions
-            
+
             print(f"📝 {card.title[:30]}...")
             print(f"   Result: {result.value} (confidence: {confidence}/5)")
             print(f"   Next review: {schedule.interval_days} days")
             print(f"   Ease factor: {schedule.ease_factor:.2f}")
-            
+
             # Award XP
             xp_points = {
                 ReviewResult.AGAIN: 10,
@@ -165,7 +176,7 @@ def demo_microlearning_flow():
                 ReviewResult.GOOD: 30,
                 ReviewResult.EASY: 50
             }[result]
-            
+
             xp = XPTransaction(
                 user_id=learner.id,
                 event_type=XPEventType.CARD_COMPLETED,
@@ -175,24 +186,25 @@ def demo_microlearning_flow():
                 multiplier=1.0 + (confidence - 3) * 0.1  # Confidence bonus
             )
             print(f"   XP earned: {int(xp.points * xp.multiplier)} points")
-    
+
     print("\n🎮 3. Gamification Summary...")
-    
+
     # Calculate total XP (simulated)
     total_xp = 0
     sessions_completed = 6  # 3 days × 2 cards
-    
+
     for session in range(sessions_completed):
         base_xp = 30 + (session * 5)  # Increasing performance
         total_xp += base_xp
-    
+
     print(f"✓ Total XP earned: {total_xp} points")
     print(f"✓ Learning streak: {learner.learning_streak} days")
     print(f"✓ Cards mastered: {len([c for c in cards if c.repetitions >= 2])}")
-    print(f"✓ Average ease factor: {sum(c.ease_factor for c in cards) / len(cards):.2f}")
-    
+    print(
+        f"✓ Average ease factor: {sum(c.ease_factor for c in cards) / len(cards):.2f}")
+
     print("\n📊 4. Algorithm Comparison...")
-    
+
     # Compare SM2 vs Leitner for same scenario
     test_card = MicroCard(
         skill_id=python_skill.id,
@@ -207,28 +219,37 @@ def demo_microlearning_flow():
         interval_days=1,
         repetitions=0
     )
-    
+
     sm2_engine = SpacedRepetitionEngine(SchedulingAlgorithm.SM2)
     leitner_engine = SpacedRepetitionEngine(SchedulingAlgorithm.LEITNER)
-    
+
     print("\nSame review (GOOD, confidence=4) with different algorithms:")
-    
-    sm2_schedule = sm2_engine.calculate_next_review(test_card, ReviewResult.GOOD, 4)
-    leitner_schedule = leitner_engine.calculate_next_review(test_card, ReviewResult.GOOD, 4)
-    
-    print(f"SM2:     Next review in {sm2_schedule.interval_days} days (ease: {sm2_schedule.ease_factor:.2f})")
-    print(f"Leitner: Next review in {leitner_schedule.interval_days} days (box: {leitner_schedule.metadata.get('leitner_box', 'N/A')})")
-    
+
+    sm2_schedule = sm2_engine.calculate_next_review(
+        test_card, ReviewResult.GOOD, 4)
+    leitner_schedule = leitner_engine.calculate_next_review(
+        test_card, ReviewResult.GOOD, 4)
+
+    print(
+        f"SM2:     Next review in {
+            sm2_schedule.interval_days} days (ease: {
+            sm2_schedule.ease_factor:.2f})")
+    print(
+        f"Leitner: Next review in {
+            leitner_schedule.interval_days} days (box: {
+            leitner_schedule.metadata.get(
+                'leitner_box',
+                'N/A')})")
+
     print("\n🎯 5. Performance Analytics...")
-    
+
     # Simulate some review history for retention calculation
-    from datetime import datetime, timezone, timedelta
-    
     class MockReview:
         def __init__(self, days_ago, result):
-            self.reviewed_at = datetime.now(timezone.utc) - timedelta(days=days_ago)
+            self.reviewed_at = datetime.now(
+                timezone.utc) - timedelta(days=days_ago)
             self.result = result
-    
+
     mock_reviews = [
         MockReview(1, ReviewResult.GOOD),
         MockReview(3, ReviewResult.EASY),
@@ -239,29 +260,35 @@ def demo_microlearning_flow():
         MockReview(15, ReviewResult.AGAIN),
         MockReview(18, ReviewResult.GOOD)
     ]
-    
+
     retention_rate = sr_engine.calculate_retention_rate(mock_reviews, 30)
-    
+
     print(f"✓ 30-day retention rate: {retention_rate:.1%}")
     print(f"✓ Reviews completed: {len(mock_reviews)}")
-    print(f"✓ Success rate: {len([r for r in mock_reviews if r.result in [ReviewResult.GOOD, ReviewResult.EASY]])}/{len(mock_reviews)}")
-    
+    print(
+        f"✓ Success rate: {len([r for r in mock_reviews if r.result in [ReviewResult.GOOD, ReviewResult.EASY]])}/{len(mock_reviews)}")
+
     # Daily load optimization
     load_config = sr_engine.optimize_daily_load(
         user_id=str(learner.id),
         target_minutes=learner.daily_goal_minutes
     )
-    
-    print(f"\n📅 Optimized daily schedule for {learner.daily_goal_minutes} minutes:")
+
+    print(
+        f"\n📅 Optimized daily schedule for {
+            learner.daily_goal_minutes} minutes:")
     print(f"  - Review cards: {load_config['recommended_reviews']}")
     print(f"  - New cards: {load_config['recommended_new_cards']}")
-    print(f"  - Time range: {load_config['confidence_interval'][0]:.0f}-{load_config['confidence_interval'][1]:.0f} minutes")
-    
+    print(
+        f"  - Time range: {
+            load_config['confidence_interval'][0]:.0f}-{
+            load_config['confidence_interval'][1]:.0f} minutes")
+
     print("\n🎉 Demo Complete!")
     print("=" * 60)
     print("✅ Stage 1 implementation successfully demonstrated:")
     print("   • Core data models with relationships")
-    print("   • SM2 and Leitner spaced repetition algorithms") 
+    print("   • SM2 and Leitner spaced repetition algorithms")
     print("   • Confidence-based scheduling adjustments")
     print("   • Performance analytics and optimization")
     print("   • Gamification with XP and streak tracking")

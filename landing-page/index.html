@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnInSlices - Master Any Skill in 3 Minutes Daily</title>
+    <meta name="description" content="AI-powered microlearning platform with personalized skill roadmaps, spaced repetition, and gamification. Transform your learning journey today.">
+    <meta name="keywords" content="microlearning, AI education, skill development, spaced repetition, gamification">
+    
+    <!-- Preload critical assets -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" as="style">
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preload" href="js/main.js" as="script">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    
+    <!-- Meta tags for social sharing -->
+    <meta property="og:title" content="LearnInSlices - Master Any Skill in 3 Minutes Daily">
+    <meta property="og:description" content="AI-powered microlearning platform with personalized skill roadmaps">
+    <meta property="og:image" content="assets/og-image.jpg">
+    <meta property="og:url" content="https://learninslices.com">
+    <meta name="twitter:card" content="summary_large_image">
+</head>
+<body class="overflow-x-hidden">
+    <!-- Custom cursor -->
+    <div id="cursor" class="cursor" aria-hidden="true"></div>
+    <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
+    
+    <!-- Loading screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="logo-container">
+                <svg class="loading-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" stroke="url(#gradient)" stroke-width="2" fill="none" class="circle-path"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="logo-text">LearnInSlices</div>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+                <div class="progress-text">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <svg class="nav-logo" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="20" cy="20" r="18" stroke="url(#navGradient)" stroke-width="2" fill="none"/>
+                    <path d="M15 20h10M20 15v10" stroke="url(#navGradient)" stroke-width="2" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="navGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1"/>
+                            <stop offset="100%" style="stop-color:#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="brand-text">LearnInSlices</span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#demo" class="nav-link">Demo</a>
+                <a href="#roadmap" class="nav-link">Roadmap</a>
+                <a href="#testimonials" class="nav-link">Reviews</a>
+                <div class="nav-actions">
+                    <button class="theme-toggle" aria-label="Toggle dark mode" id="theme-toggle">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <button class="cta-button cta-nav">Get Started</button>
+                </div>
+            </div>
+            
+            <button class="mobile-menu-toggle" aria-label="Toggle mobile menu" id="mobile-toggle">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+        <div class="hero-background">
+            <div class="gradient-mesh">
+                <div class="mesh-gradient-1"></div>
+                <div class="mesh-gradient-2"></div>
+                <div class="mesh-gradient-3"></div>
+                <div class="mesh-gradient-4"></div>
+            </div>
+            <div class="floating-particles" aria-hidden="true">
+                <!-- Particles will be generated by JavaScript -->
+            </div>
+            <div class="floating-shapes" aria-hidden="true">
+                <div class="shape shape-1">📚</div>
+                <div class="shape shape-2">⭐</div>
+                <div class="shape shape-3">🏆</div>
+                <div class="shape shape-4">🎯</div>
+                <div class="shape shape-5">⚡</div>
+                <div class="shape shape-6">🧠</div>
+            </div>
+        </div>
+        
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge magnetic-element">
+                    <span class="badge-icon">🚀</span>
+                    <span class="badge-text">AI-Powered Learning Platform</span>
+                    <div class="badge-shimmer"></div>
+                </div>
+                
+                <h1 class="hero-title">
+                    <span class="title-line-1 typewriter-text">Master Any Skill</span>
+                    <span class="title-line-2">in <span class="highlight-text shimmer-text">3 Minutes</span> Daily</span>
+                </h1>
+                
+                <p class="hero-description">
+                    Transform your learning journey with personalized skill roadmaps, 
+                    AI-powered content curation, and gamified progress tracking. 
+                    Join thousands who've revolutionized their skills development.
+                </p>
+                
+                <div class="hero-actions">
+                    <button class="cta-button cta-primary magnetic-element bounce-entrance">
+                        <span class="button-text">Start Learning Free</span>
+                        <div class="button-ripple"></div>
+                        <div class="button-shine"></div>
+                    </button>
+                    <button class="cta-button cta-secondary magnetic-element">
+                        <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5,3 19,12 5,21"></polygon>
+                        </svg>
+                        <span class="button-text">Watch Demo</span>
+                        <div class="button-glow"></div>
+                    </button>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item animated-counter">
+                        <div class="stat-number" data-count="50000">0</div>
+                        <div class="stat-label">Active Learners</div>
+                        <div class="stat-sparkle"></div>
+                    </div>
+                    <div class="stat-item animated-counter">
+                        <div class="stat-number" data-count="1000">0</div>
+                        <div class="stat-label">Skill Paths</div>
+                        <div class="stat-sparkle"></div>
+                    </div>
+                    <div class="stat-item animated-counter">
+                        <div class="stat-number" data-count="95">0</div>
+                        <div class="stat-label">Success Rate</div>
+                        <div class="stat-sparkle"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual">
+                <div class="floating-card card-1 hover-tilt">
+                    <div class="card-icon">📚</div>
+                    <div class="card-title">JavaScript Basics</div>
+                    <div class="card-progress">
+                        <div class="progress-bar-small">
+                            <div class="progress-fill animated-fill" style="width: 75%" data-progress="75"></div>
+                        </div>
+                        <span class="progress-text">75%</span>
+                    </div>
+                    <div class="card-glow"></div>
+                </div>
+                
+                <div class="floating-card card-2 hover-tilt">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-title">UI/UX Design</div>
+                    <div class="card-progress">
+                        <div class="progress-bar-small">
+                            <div class="progress-fill animated-fill" style="width: 45%" data-progress="45"></div>
+                        </div>
+                        <span class="progress-text">45%</span>
+                    </div>
+                    <div class="card-glow"></div>
+                </div>
+                
+                <div class="floating-card card-3 hover-tilt">
+                    <div class="card-icon">🧠</div>
+                    <div class="card-title">Machine Learning</div>
+                    <div class="card-progress">
+                        <div class="progress-bar-small">
+                            <div class="progress-fill animated-fill" style="width: 30%" data-progress="30"></div>
+                        </div>
+                        <span class="progress-text">30%</span>
+                    </div>
+                    <div class="card-glow"></div>
+                </div>
+                
+                <!-- Interactive micro-card preview -->
+                <div class="micro-card-preview">
+                    <div class="card-stack">
+                        <div class="micro-card card-back"></div>
+                        <div class="micro-card card-middle"></div>
+                        <div class="micro-card card-front active">
+                            <div class="card-content">
+                                <div class="card-type">Quick Quiz</div>
+                                <div class="card-question">What is JavaScript closure?</div>
+                                <div class="card-options">
+                                    <div class="option">A. Function scope</div>
+                                    <div class="option correct">B. Inner function access</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="card-btn prev">❮</button>
+                        <button class="card-btn next">❯</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="scroll-text">Scroll to explore</div>
+            <div class="scroll-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M7 13l3 3 7-3M7 6l5 5 5-5"></path>
+                </svg>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Interactive Demo Section -->
+    <section class="demo-section" id="demo">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span class="badge-icon">⚡</span>
+                    <span class="badge-text">Interactive Demo</span>
+                </div>
+                <h2 class="section-title">Experience the Magic</h2>
+                <p class="section-description">
+                    See how our AI creates personalized learning paths that adapt to your pace and preferences.
+                </p>
+            </div>
+            
+            <div class="demo-container">
+                <div class="demo-interface">
+                    <div class="demo-header">
+                        <div class="demo-tabs">
+                            <button class="demo-tab active" data-tab="skills">Skill Tree</button>
+                            <button class="demo-tab" data-tab="cards">Learning Cards</button>
+                            <button class="demo-tab" data-tab="progress">Progress</button>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-content">
+                        <div class="demo-panel active" id="skills-panel">
+                            <div class="skill-tree">
+                                <div class="skill-node completed" data-skill="html">
+                                    <div class="node-icon">📄</div>
+                                    <div class="node-title">HTML Basics</div>
+                                    <div class="node-connection"></div>
+                                </div>
+                                <div class="skill-node in-progress" data-skill="css">
+                                    <div class="node-icon">🎨</div>
+                                    <div class="node-title">CSS Fundamentals</div>
+                                    <div class="node-connection"></div>
+                                </div>
+                                <div class="skill-node locked" data-skill="js">
+                                    <div class="node-icon">⚡</div>
+                                    <div class="node-title">JavaScript</div>
+                                    <div class="node-connection"></div>
+                                </div>
+                                <div class="skill-node locked" data-skill="react">
+                                    <div class="node-icon">⚛️</div>
+                                    <div class="node-title">React</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-panel" id="cards-panel">
+                            <div class="learning-card">
+                                <div class="card-header">
+                                    <span class="card-category">CSS Fundamentals</span>
+                                    <span class="card-difficulty">Beginner</span>
+                                </div>
+                                <div class="card-question">
+                                    <h3>What does CSS stand for?</h3>
+                                </div>
+                                <div class="card-options">
+                                    <button class="option-btn">Computer Style Sheets</button>
+                                    <button class="option-btn correct">Cascading Style Sheets</button>
+                                    <button class="option-btn">Creative Style Sheets</button>
+                                    <button class="option-btn">Colorful Style Sheets</button>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="card-action-btn secondary">Skip</button>
+                                    <button class="card-action-btn primary">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-panel" id="progress-panel">
+                            <div class="progress-overview">
+                                <div class="progress-stat">
+                                    <div class="stat-circle" data-progress="75">
+                                        <svg class="progress-ring" viewBox="0 0 36 36">
+                                            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                            <path class="circle" stroke-dasharray="75, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        </svg>
+                                        <div class="progress-number">75%</div>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-title">Overall Progress</div>
+                                        <div class="stat-subtitle">3 skills completed</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="streak-info">
+                                    <div class="streak-icon">🔥</div>
+                                    <div class="streak-text">
+                                        <div class="streak-number">15</div>
+                                        <div class="streak-label">Day Streak</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span class="badge-icon">✨</span>
+                    <span class="badge-text">Features</span>
+                </div>
+                <h2 class="section-title">Why LearnInSlices Works</h2>
+                <p class="section-description">
+                    Our platform combines cutting-edge AI with proven learning science to deliver results.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-feature="ai">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">AI-Powered Personalization</h3>
+                    <p class="feature-description">
+                        Our advanced algorithms analyze your learning patterns to create perfectly tailored skill roadmaps.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="97">0</span>
+                            <span class="stat-text">% accuracy</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-feature="spaced">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12,6 12,12 16,14"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Spaced Repetition</h3>
+                    <p class="feature-description">
+                        Based on forgetting curve research, we show you content at optimal intervals for maximum retention.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="85">0</span>
+                            <span class="stat-text">% retention</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-feature="micro">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path>
+                            <polyline points="22,4 12,14.01 9,11.01"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Micro-Learning</h3>
+                    <p class="feature-description">
+                        Bite-sized lessons that fit into your busy schedule. Master complex skills in just 3 minutes daily.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="3">0</span>
+                            <span class="stat-text">min lessons</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-feature="gamification">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12,2 15.09,8.26 22,9 17,14.74 18.18,21.02 12,17.77 5.82,21.02 7,14.74 2,9 8.91,8.26 12,2"></polygon>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Gamification</h3>
+                    <p class="feature-description">
+                        Earn points, unlock achievements, and compete with friends. Learning has never been this engaging.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="89">0</span>
+                            <span class="stat-text">% engagement</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-feature="analytics">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Advanced Analytics</h3>
+                    <p class="feature-description">
+                        Detailed insights into your learning progress, strengths, and areas for improvement.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="24">0</span>
+                            <span class="stat-text">metrics tracked</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-card" data-feature="community">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 010 7.75"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Learning Community</h3>
+                    <p class="feature-description">
+                        Connect with fellow learners, share progress, and get support from our vibrant community.
+                    </p>
+                    <div class="feature-stats">
+                        <div class="stat">
+                            <span class="stat-number" data-count="50">0</span>
+                            <span class="stat-text">k+ community</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Interactive Roadmap Visualization -->
+    <section class="roadmap-section" id="roadmap">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span class="badge-icon">🗺️</span>
+                    <span class="badge-text">Learning Roadmap</span>
+                </div>
+                <h2 class="section-title">Your Personalized Journey</h2>
+                <p class="section-description">
+                    Visualize your learning path with our interactive roadmap. Each step is designed to build upon the previous one.
+                </p>
+            </div>
+            
+            <div class="roadmap-container">
+                <div class="roadmap-selector">
+                    <button class="roadmap-tab active" data-roadmap="frontend">Frontend Development</button>
+                    <button class="roadmap-tab" data-roadmap="backend">Backend Development</button>
+                    <button class="roadmap-tab" data-roadmap="design">UI/UX Design</button>
+                </div>
+                
+                <div class="roadmap-visualization">
+                    <svg class="roadmap-svg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMid meet">
+                        <!-- Roadmap paths will be generated by JavaScript -->
+                    </svg>
+                </div>
+                
+                <div class="roadmap-legend">
+                    <div class="legend-item">
+                        <div class="legend-icon completed"></div>
+                        <span class="legend-text">Completed</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon current"></div>
+                        <span class="legend-text">Current</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-icon locked"></div>
+                        <span class="legend-text">Locked</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Testimonials Carousel -->
+    <section class="testimonials-section" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge">
+                    <span class="badge-icon">💬</span>
+                    <span class="badge-text">Success Stories</span>
+                </div>
+                <h2 class="section-title">What Our Learners Say</h2>
+                <p class="section-description">
+                    Join thousands who have transformed their careers with LearnInSlices.
+                </p>
+            </div>
+            
+            <div class="testimonials-container">
+                <div class="testimonials-track">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                "LearnInSlices helped me transition from marketing to frontend development in just 6 months. 
+                                The personalized roadmap kept me motivated and on track."
+                            </p>
+                            <div class="testimonial-rating">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face" alt="Sarah Johnson" loading="lazy">
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">Sarah Johnson</div>
+                                <div class="author-title">Frontend Developer at Google</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                "The spaced repetition feature is incredible. I actually remember what I learn, unlike other platforms. 
+                                My Python skills improved dramatically."
+                            </p>
+                            <div class="testimonial-rating">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" alt="Mike Chen" loading="lazy">
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">Mike Chen</div>
+                                <div class="author-title">Data Scientist at Microsoft</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                "Just 3 minutes a day was all I needed. The bite-sized lessons fit perfectly into my busy schedule 
+                                as a working parent. Now I'm a UX designer!"
+                            </p>
+                            <div class="testimonial-rating">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face" alt="Emma Rodriguez" loading="lazy">
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">Emma Rodriguez</div>
+                                <div class="author-title">UX Designer at Spotify</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <div class="quote-icon">"</div>
+                            <p class="testimonial-text">
+                                "The gamification aspect kept me engaged like no other platform. Competing with friends and earning 
+                                achievements made learning addictive in the best way."
+                            </p>
+                            <div class="testimonial-rating">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face" alt="Alex Thompson" loading="lazy">
+                            </div>
+                            <div class="author-info">
+                                <div class="author-name">Alex Thompson</div>
+                                <div class="author-title">Full Stack Developer at Netflix</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonials-controls">
+                    <button class="testimonial-control prev" aria-label="Previous testimonial">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15,18 9,12 15,6"></polyline>
+                        </svg>
+                    </button>
+                    <button class="testimonial-control next" aria-label="Next testimonial">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9,18 15,12 9,6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="testimonials-indicators">
+                    <button class="indicator active" data-slide="0"></button>
+                    <button class="indicator" data-slide="1"></button>
+                    <button class="indicator" data-slide="2"></button>
+                    <button class="indicator" data-slide="3"></button>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <div class="cta-header">
+                    <h2 class="cta-title">Ready to Transform Your Learning?</h2>
+                    <p class="cta-description">
+                        Join over 50,000 learners who have already started their journey to mastery. 
+                        Start your free trial today and see the difference AI-powered learning can make.
+                    </p>
+                </div>
+                
+                <div class="cta-form">
+                    <div class="form-group">
+                        <input type="email" class="email-input" placeholder="Enter your email address" required>
+                        <button class="cta-button cta-primary magnetic-element">
+                            <span class="button-text">Start Free Trial</span>
+                            <div class="button-ripple"></div>
+                        </button>
+                    </div>
+                    <div class="form-note">
+                        No credit card required • Cancel anytime • 14-day free trial
+                    </div>
+                </div>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <svg class="feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
+                        <span>Personalized learning paths</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg class="feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
+                        <span>Expert-curated content</span>
+                    </div>
+                    <div class="cta-feature">
+                        <svg class="feature-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20,6 9,17 4,12"></polyline>
+                        </svg>
+                        <span>Community support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-wave">
+            <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+                <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
+                <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+            </svg>
+        </div>
+        
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="20" cy="20" r="18" stroke="url(#footerGradient)" stroke-width="2" fill="none"/>
+                            <path d="M15 20h10M20 15v10" stroke="url(#footerGradient)" stroke-width="2" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="footerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#6366f1"/>
+                                    <stop offset="100%" style="stop-color:#8b5cf6"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span class="footer-brand-text">LearnInSlices</span>
+                    </div>
+                    <p class="footer-description">
+                        Transform your learning journey with AI-powered microlearning. 
+                        Master any skill in just 3 minutes daily.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link" aria-label="Twitter">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="LinkedIn">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="GitHub">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="social-link" aria-label="Discord">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0002 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1568 2.4189Z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-title">Product</h4>
+                        <ul class="footer-list">
+                            <li><a href="#" class="footer-link">Features</a></li>
+                            <li><a href="#" class="footer-link">Pricing</a></li>
+                            <li><a href="#" class="footer-link">Roadmap</a></li>
+                            <li><a href="#" class="footer-link">API</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">Company</h4>
+                        <ul class="footer-list">
+                            <li><a href="#" class="footer-link">About</a></li>
+                            <li><a href="#" class="footer-link">Blog</a></li>
+                            <li><a href="#" class="footer-link">Careers</a></li>
+                            <li><a href="#" class="footer-link">Press</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">Resources</h4>
+                        <ul class="footer-list">
+                            <li><a href="#" class="footer-link">Help Center</a></li>
+                            <li><a href="#" class="footer-link">Community</a></li>
+                            <li><a href="#" class="footer-link">Guidelines</a></li>
+                            <li><a href="#" class="footer-link">Tutorials</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-title">Legal</h4>
+                        <ul class="footer-list">
+                            <li><a href="#" class="footer-link">Privacy</a></li>
+                            <li><a href="#" class="footer-link">Terms</a></li>
+                            <li><a href="#" class="footer-link">Security</a></li>
+                            <li><a href="#" class="footer-link">Status</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    <p>&copy; 2025 LearnInSlices. All rights reserved.</p>
+                </div>
+                <div class="footer-actions">
+                    <div class="newsletter-signup">
+                        <input type="email" class="newsletter-input" placeholder="Subscribe to our newsletter">
+                        <button class="newsletter-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scroll to top button -->
+    <button class="scroll-to-top" id="scroll-to-top" aria-label="Scroll to top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="18,15 12,9 6,15"></polyline>
+        </svg>
+        <div class="scroll-progress"></div>
+    </button>
+    
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/interactions.js"></script>
+</body>
+</html>

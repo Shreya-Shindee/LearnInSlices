@@ -88,7 +88,7 @@ def sample_micro_card(db_session, sample_skill):
 
 class TestUserModel:
     """Test User model functionality"""
-    
+
     def test_user_creation(self, db_session):
         """Test basic user creation and validation"""
         user = User(
@@ -99,13 +99,13 @@ class TestUserModel:
         )
         db_session.add(user)
         db_session.commit()
-        
+
         assert user.id is not None
         assert user.email == "user@test.com"
         assert user.learning_streak == 0
         assert user.is_active is True
         assert user.created_at is not None
-    
+
     def test_user_email_validation(self, db_session):
         """Test email validation logic"""
         user = User(
@@ -115,10 +115,10 @@ class TestUserModel:
         )
         db_session.add(user)
         db_session.commit()
-        
+
         # Email should be converted to lowercase
         assert user.email == "uppercase@example.com"
-    
+
     def test_user_email_uniqueness(self, db_session, sample_user):
         """Test email uniqueness constraint"""
         duplicate_user = User(
@@ -127,10 +127,10 @@ class TestUserModel:
             hashed_password="hash"
         )
         db_session.add(duplicate_user)
-        
+
         with pytest.raises(IntegrityError):
             db_session.commit()
-    
+
     def test_user_total_xp_property(self, db_session, sample_user):
         """Test XP calculation property"""
         # Add some XP transactions
@@ -146,17 +146,17 @@ class TestUserModel:
             points=25,
             description="Successful review"
         )
-        
+
         db_session.add_all([xp1, xp2])
         db_session.commit()
         db_session.refresh(sample_user)
-        
+
         assert sample_user.total_xp == 75
 
 
 class TestSkillModel:
     """Test Skill model functionality"""
-    
+
     def test_skill_creation(self, db_session):
         """Test basic skill creation"""
         skill = Skill(
@@ -168,12 +168,12 @@ class TestSkillModel:
         )
         db_session.add(skill)
         db_session.commit()
-        
+
         assert skill.id is not None
         assert skill.name == "Machine Learning"
         assert skill.level == 0  # Default root level
         assert skill.created_at is not None
-    
+
     def test_skill_hierarchy(self, db_session):
         """Test parent-child skill relationships"""
         parent_skill = Skill(
@@ -183,7 +183,7 @@ class TestSkillModel:
         )
         db_session.add(parent_skill)
         db_session.commit()
-        
+
         child_skill = Skill(
             name="Python",
             slug="python",
@@ -192,7 +192,7 @@ class TestSkillModel:
         )
         db_session.add(child_skill)
         db_session.commit()
-        
+
         assert child_skill.parent_id == parent_skill.id
         assert len(parent_skill.children) == 1
         assert parent_skill.children[0].name == "Python"
@@ -200,7 +200,7 @@ class TestSkillModel:
 
 class TestMicroCardModel:
     """Test MicroCard model functionality"""
-    
+
     def test_micro_card_creation(self, db_session, sample_skill):
         """Test basic micro card creation"""
         card = MicroCard(
@@ -216,12 +216,12 @@ class TestMicroCardModel:
         )
         db_session.add(card)
         db_session.commit()
-        
+
         assert card.id is not None
         assert card.ease_factor == 2.5  # Default SM2 ease
         assert card.interval_days == 1  # Default interval
         assert card.is_active is True
-    
+
     def test_content_validation_quiz(self, db_session, sample_skill):
         """Test quiz content validation"""
         # Valid quiz content
@@ -238,10 +238,11 @@ class TestMicroCardModel:
         )
         db_session.add(valid_quiz)
         db_session.commit()  # Should not raise
-        
+
         assert valid_quiz.id is not None
-    
-    def test_micro_card_skill_relationship(self, db_session, sample_micro_card):
+
+    def test_micro_card_skill_relationship(
+            self, db_session, sample_micro_card):
         """Test relationship between cards and skills"""
         assert sample_micro_card.skill is not None
         assert sample_micro_card.skill.name == "Python Programming"
@@ -250,7 +251,7 @@ class TestMicroCardModel:
 
 class TestReviewModel:
     """Test Review model functionality"""
-    
+
     def test_review_creation(self, db_session, sample_user, sample_micro_card):
         """Test basic review creation"""
         review = Review(
@@ -267,12 +268,16 @@ class TestReviewModel:
         )
         db_session.add(review)
         db_session.commit()
-        
+
         assert review.id is not None
         assert review.attempts == 1  # Default
         assert review.reviewed_at is not None
-    
-    def test_review_relationships(self, db_session, sample_user, sample_micro_card):
+
+    def test_review_relationships(
+            self,
+            db_session,
+            sample_user,
+            sample_micro_card):
         """Test review model relationships"""
         review = Review(
             user_id=sample_user.id,
@@ -286,14 +291,14 @@ class TestReviewModel:
         )
         db_session.add(review)
         db_session.commit()
-        
+
         assert review.user.username == sample_user.username
         assert review.micro_card.title == sample_micro_card.title
 
 
 class TestXPTransactionModel:
     """Test XP transaction model"""
-    
+
     def test_xp_transaction_creation(self, db_session, sample_user):
         """Test XP transaction creation"""
         xp = XPTransaction(
@@ -306,7 +311,7 @@ class TestXPTransactionModel:
         )
         db_session.add(xp)
         db_session.commit()
-        
+
         assert xp.id is not None
         assert xp.points == 100
         assert xp.multiplier == 1.5
@@ -315,7 +320,7 @@ class TestXPTransactionModel:
 
 class TestPeerRoomModel:
     """Test peer room model"""
-    
+
     def test_peer_room_creation(self, db_session, sample_user, sample_skill):
         """Test peer room creation"""
         room = PeerRoom(
@@ -328,12 +333,16 @@ class TestPeerRoomModel:
         )
         db_session.add(room)
         db_session.commit()
-        
+
         assert room.id is not None
         assert room.is_active is True
         assert room.participant_count == 0  # No participants yet
-    
-    def test_peer_room_participants(self, db_session, sample_user, sample_skill):
+
+    def test_peer_room_participants(
+            self,
+            db_session,
+            sample_user,
+            sample_skill):
         """Test peer room participant relationships"""
         room = PeerRoom(
             host_id=sample_user.id,
@@ -341,12 +350,12 @@ class TestPeerRoomModel:
             name="Test Room",
             max_participants=3
         )
-        
+
         # Add participant
         room.participants.append(sample_user)
         db_session.add(room)
         db_session.commit()
-        
+
         assert room.participant_count == 1
         assert sample_user in room.participants
 
@@ -354,8 +363,12 @@ class TestPeerRoomModel:
 # Integration tests
 class TestModelIntegration:
     """Test model integration scenarios"""
-    
-    def test_complete_learning_flow(self, db_session, sample_user, sample_skill):
+
+    def test_complete_learning_flow(
+            self,
+            db_session,
+            sample_user,
+            sample_skill):
         """Test a complete learning scenario"""
         # Create micro card
         card = MicroCard(
@@ -367,7 +380,7 @@ class TestModelIntegration:
         )
         db_session.add(card)
         db_session.flush()
-        
+
         # User reviews the card
         review = Review(
             user_id=sample_user.id,
@@ -381,7 +394,7 @@ class TestModelIntegration:
         )
         db_session.add(review)
         db_session.flush()
-        
+
         # Award XP
         xp = XPTransaction(
             user_id=sample_user.id,
@@ -392,7 +405,7 @@ class TestModelIntegration:
         )
         db_session.add(xp)
         db_session.commit()
-        
+
         # Verify the complete flow
         db_session.refresh(sample_user)
         assert len(sample_user.reviews) == 1

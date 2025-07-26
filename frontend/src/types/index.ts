@@ -11,16 +11,6 @@ export interface User {
   updated_at: string;
 }
 
-export interface UserStats {
-  total_xp: number;
-  current_level: number;
-  current_streak: number;
-  longest_streak: number;
-  cards_mastered: number;
-  badges_earned: number;
-  challenges_completed: number;
-}
-
 // Learning Content Types
 export interface LearningPath {
   id: string;
@@ -55,10 +45,75 @@ export interface MicroCardContent {
   question?: string;
   hiddenContent?: string;
   imageUrl?: string;
+  videoUrl?: string;
+  videoPoster?: string;
+  videoThumbnail?: string;
+  videoDescription?: string;
   codeSnippet?: string;
   keyPoints?: string[];
   examples?: string[];
   resources?: { title: string; url: string; type: string }[];
+  quiz?: QuizContent;
+  interactiveElements?: InteractiveElement[];
+  // New enhanced content types
+  animations?: AnimationConfig[];
+  videos?: VideoContent[];
+  practiceExercises?: PracticeExercise[];
+}
+
+export interface QuizContent {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  points?: number;
+}
+
+// Enhanced content types for engaging microcards
+export interface VideoContent {
+  id: string;
+  url: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+  duration?: number; // in seconds
+  skillLevel: 'beginner' | 'intermediate' | 'advanced';
+  tags?: string[];
+  transcript?: string;
+}
+
+export interface AnimationConfig {
+  type: 'slide' | 'fade' | 'zoom' | 'flip' | 'bounce';
+  direction?: 'left' | 'right' | 'up' | 'down';
+  duration?: number; // in milliseconds
+  easing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
+}
+
+export interface PracticeExercise {
+  id: string;
+  type: 'coding' | 'multiple-choice' | 'drag-drop' | 'fill-blank';
+  question: string;
+  answer: string | string[];
+  hints?: string[];
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+export interface SwipeGesture {
+  direction: 'left' | 'right' | 'up' | 'down';
+  velocity: number;
+  distance: number;
+}
+
+export interface CardAnimation {
+  enter: AnimationConfig;
+  exit: AnimationConfig;
+}
+
+export interface InteractiveElement {
+  type: 'button' | 'input' | 'slider' | 'toggle';
+  label: string;
+  action?: string;
+  value?: any;
 }
 
 export interface CardInteraction {
@@ -66,23 +121,32 @@ export interface CardInteraction {
   pathId: string;
   type: 'content_revealed' | 'bookmark_added' | 'bookmark_removed' | 
         'like_added' | 'like_removed' | 'navigation_next' | 'navigation_previous' | 
-        'card_completed' | 'time_spent';
+        'card_completed' | 'time_spent' | 'quiz_completed' | 'quiz_answered' | 
+        'video_played' | 'video_paused' | 'video_completed' | 
+        'swipe_left' | 'swipe_right' | 'animation_triggered';
   timeSpent: number;
   timestamp: string;
   additionalData?: Record<string, any>;
 }
 
-export interface UserProgress {
+// Enhanced quiz system types
+export interface QuizSession {
   id: string;
-  user_id: string;
-  learning_path_id: string;
-  current_card_id?: string;
-  completion_percentage: number;
-  mastery_score: number;
-  time_spent_minutes: number;
-  last_accessed: string;
-  created_at: string;
-  updated_at: string;
+  cardIds: string[];
+  startTime: string;
+  endTime?: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  userAnswers: QuizAnswer[];
+}
+
+export interface QuizAnswer {
+  questionId: string;
+  selectedAnswer: number;
+  isCorrect: boolean;
+  timeSpent: number;
+  timestamp: string;
 }
 
 export interface CardAttempt {
@@ -246,4 +310,86 @@ export interface StudySessionUpdate {
   type: 'peer_joined' | 'peer_left' | 'progress_update' | 'chat_message';
   user_id: string;
   data: any;
+}
+
+// Progress Tracking Types
+export interface UserProgress {
+  id: string;
+  user_id: string;
+  learning_path_id: string;
+  card_progress: CardProgress[];
+  overall_progress: number; // 0-100
+  time_spent: number; // in minutes
+  streak_count: number;
+  last_accessed: string;
+  mastery_level: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  completion_date?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CardProgress {
+  card_id: string;
+  status: 'not_started' | 'in_progress' | 'review' | 'mastered';
+  attempts: number;
+  correct_answers: number;
+  time_spent: number; // in seconds
+  difficulty_rating?: number; // 1-5 user feedback
+  last_reviewed: string;
+  next_review: string;
+  retention_score: number; // 0-1 based on spaced repetition
+  confidence_level: number; // 1-5 user self-assessment
+}
+
+export interface LearningSession {
+  id: string;
+  user_id: string;
+  learning_path_id: string;
+  cards_studied: string[];
+  duration: number; // in minutes
+  accuracy: number; // 0-100
+  xp_earned: number;
+  started_at: string;
+  completed_at: string;
+}
+
+export interface UserStats {
+  total_xp: number;
+  current_level: number;
+  current_streak: number;
+  longest_streak: number;
+  total_time_studied: number; // in minutes
+  paths_completed: number;
+  cards_mastered: number;
+  average_accuracy: number;
+  daily_goal: number; // minutes per day
+  weekly_progress: DailyProgress[];
+}
+
+export interface DailyProgress {
+  date: string; // YYYY-MM-DD
+  minutes_studied: number;
+  cards_reviewed: number;
+  xp_earned: number;
+  accuracy: number;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: 'streak' | 'time' | 'accuracy' | 'completion' | 'social';
+  threshold: number;
+  earned_at?: string;
+  progress: number; // 0-100
+}
+
+export interface LearningInsight {
+  type: 'strength' | 'weakness' | 'recommendation' | 'pattern';
+  title: string;
+  description: string;
+  data?: any;
+  confidence: number; // 0-1
+  actionable: boolean;
 }

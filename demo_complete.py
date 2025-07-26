@@ -5,26 +5,34 @@ Demonstrates all implemented features across all stages
 
 import sys
 import os
-from datetime import datetime
 
 # Add project to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Mock the imports for demo purposes
 try:
-    from backend.app.ai_service import AIService
-    from backend.app.spaced_repetition import SpacedRepetitionEngine
+    from backend.app.ai_service import AIService  # type: ignore
+    from backend.app.spaced_repetition import (  # type: ignore
+        SpacedRepetitionEngine
+    )
     DEPENDENCIES_AVAILABLE = True
 except ImportError:
     DEPENDENCIES_AVAILABLE = False
     print("Backend dependencies not available. Running in demo mode.")
+    # Create mock classes for demo
+
+    class SpacedRepetitionEngine:
+        pass
+
+    class AIService:
+        pass
 
 
 def demo_complete_platform():
     """Demonstrate the complete LearnInSlices platform"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("LEARNINSLICES - COMPLETE PLATFORM DEMO")
-    print("="*70)
+    print("=" * 70)
 
     print("\n🎯 Platform Overview:")
     print("   An AI-powered adaptive microlearning platform")
@@ -53,8 +61,12 @@ def demo_stage1_foundation():
 
     if DEPENDENCIES_AVAILABLE:
         print("\n🧠 Spaced Repetition Demo:")
-        engine = SpacedRepetitionEngine()
-        print("   Card scheduled for optimal review timing")
+        try:
+            engine = SpacedRepetitionEngine()
+            print(f"   Engine initialized: {type(engine).__name__}")
+            print("   Card scheduled for optimal review timing")
+        except Exception as e:
+            print(f"   Demo simulation: {e}")
 
 
 def demo_stage2_ai_content():
@@ -70,7 +82,6 @@ def demo_stage2_ai_content():
 
     if DEPENDENCIES_AVAILABLE:
         print("\n📝 AI Content Demo:")
-        ai_service = AIService()
         print("   Generated learning path: 'Python Fundamentals'")
         print("   Created 15 micro-cards with adaptive difficulty")
 
@@ -159,7 +170,7 @@ if __name__ == "__main__":
     demo_platform_metrics()
     demo_technical_architecture()
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Complete demo finished successfully! 🎉")
     print("Platform ready for production deployment!")
-    print("="*70)
+    print("=" * 70)

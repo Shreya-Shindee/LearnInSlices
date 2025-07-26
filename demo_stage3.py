@@ -2,22 +2,53 @@
 Stage 3 Demo: Gamification and Peer Collaboration
 Demonstrates the enhanced LearnInSlices platform with social learning features
 """
+# type: ignore
 
 import sys
 import os
-from datetime import datetime
 
 # Add project to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # Mock the imports for demo purposes
+# pyright: reportMissingImports=false
 try:
-    from backend.app.gamification import GamificationEngine
-    from backend.app.collaboration import CollaborationEngine
+    from backend.app.gamification import GamificationEngine  # type: ignore
+    from backend.app.collaboration import CollaborationEngine  # type: ignore
     DEPENDENCIES_AVAILABLE = True
 except ImportError:
     DEPENDENCIES_AVAILABLE = False
     print("Backend dependencies not available. Running in demo mode.")
+
+    # Create mock classes for demo
+    class GamificationEngine:  # type: ignore
+        def __init__(self, db_session=None):
+            pass
+
+        def add_xp(self, user_id, amount, reason):
+            return amount
+
+        def check_level_up(self, user_id):
+            return {"leveled_up": True, "new_level": 2}
+
+        def award_badge(self, user_id, badge_type):
+            return True
+
+    class CollaborationEngine:  # type: ignore
+        def __init__(self, db_session=None):
+            pass
+
+        def create_study_room(self, creator_id, room_config=None, **kwargs):
+            return "room_123"
+
+        def join_room(self, room_id, user_id):
+            return True
+
+        def start_challenge(self, **kwargs):
+            return "challenge_456"
+
+        def create_peer_challenge(self, **kwargs):
+            return "challenge_789"
 
 
 def demo_gamification_system():
@@ -152,9 +183,9 @@ def demo_engagement_analytics():
 
 def demo_stage3_integration():
     """Demonstrate Stage 3 complete integration"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("STAGE 3: GAMIFICATION & PEER COLLABORATION")
-    print("="*60)
+    print("=" * 60)
 
     print("\n🎯 Stage 3 Achievements:")
     print("   ✅ Comprehensive gamification system")
@@ -182,6 +213,6 @@ if __name__ == "__main__":
 
     demo_stage3_integration()
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Demo completed successfully! 🎉")
-    print("="*60)
+    print("=" * 60)

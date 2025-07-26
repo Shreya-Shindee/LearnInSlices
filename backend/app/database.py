@@ -125,7 +125,7 @@ async def init_database():
             print("✓ pgvector extension enabled")
         except Exception as e:
             print(f"Warning: Could not enable pgvector extension: {e}")
-        
+
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
         print("✓ Database tables created")
@@ -140,19 +140,18 @@ async def check_database_connection():
             # Test basic connection
             result = await conn.execute(text("SELECT 1"))
             assert result.scalar() == 1
-            
+
             # Check pgvector extension
             try:
                 await conn.execute(text("SELECT 1 FROM pg_extension WHERE extname = 'vector'"))
                 pgvector_available = True
             except Exception:
                 pgvector_available = False
-            
+
             return {
                 "database_connected": True,
                 "pgvector_available": pgvector_available,
-                "database_url": ASYNC_DATABASE_URL.split("@")[1] if "@" in ASYNC_DATABASE_URL else "hidden"
-            }
+                "database_url": ASYNC_DATABASE_URL.split("@")[1] if "@" in ASYNC_DATABASE_URL else "hidden"}
     except Exception as e:
         return {
             "database_connected": False,
@@ -170,14 +169,14 @@ async def health_check() -> dict:
             # Test query
             result = await session.execute(text("SELECT NOW()"))
             timestamp = result.scalar()
-            
+
             # Count tables
             tables_result = await session.execute(text("""
-                SELECT COUNT(*) FROM information_schema.tables 
+                SELECT COUNT(*) FROM information_schema.tables
                 WHERE table_schema = 'public'
             """))
             table_count = tables_result.scalar()
-            
+
             return {
                 "status": "healthy",
                 "timestamp": timestamp,
@@ -195,13 +194,13 @@ async def health_check() -> dict:
 # Context managers for testing
 class TestDatabase:
     """Context manager for test database operations"""
-    
+
     def __enter__(self):
         """Setup test database"""
         Base.metadata.create_all(bind=test_engine)
         self.session = TestSessionLocal()
         return self.session
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Cleanup test database"""
         self.session.close()
@@ -215,7 +214,7 @@ def run_migrations():
     """
     from alembic.config import Config
     from alembic import command
-    
+
     alembic_cfg = Config("alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
@@ -226,6 +225,6 @@ def create_migration(message: str):
     """
     from alembic.config import Config
     from alembic import command
-    
+
     alembic_cfg = Config("alembic.ini")
     command.revision(alembic_cfg, autogenerate=True, message=message)

@@ -1,0 +1,709 @@
+"""
+AI-Powered Micro-Card Generator
+Generates personalized microlearning content using HuggingFace models
+
+Key Features:
+- Multiple content types (concept, quiz, drill, interactive)
+- Difficulty level adaptation
+- Quality assessment and validation
+- Content personalization based on learning history
+- Integration with OER content for source material
+"""
+
+import random
+from typing import List, Dict, Optional
+from dataclasses import dataclass
+from datetime import datetime, timezone
+import logging
+
+from transformers import pipeline
+import torch
+
+from ..ml.oercrawler import OERResource
+from ..ml.embeddings import EmbeddingGenerator
+from ..app.models import CardType, DifficultyLevel
+
+
+@dataclass
+class GenerationConfig:
+    """Configuration for micro-card generation"""
+
+    model_name: str = "microsoft/DialoGPT-medium"  # Free model
+    max_length: int = 512
+    temperature: float = 0.7
+    top_p: float = 0.9
+    num_return_sequences: int = 1
+    device: str = "auto"
+
+
+class ContentTemplates:
+    """
+    Templates for different types of micro-cards
+    """
+
+    CONCEPT_TEMPLATE = """
+    Create an educational concept explanation about: {topic}
+
+    Difficulty level: {difficulty}
+    Target audience: {audience}
+
+    Please provide:
+    1. A clear, concise explanation (2-3 sentences)
+    2. 2-3 practical examples
+    3. Key points to remember
+
+    Format your response as structured explanation for microlearning.
+    """
+
+    QUIZ_TEMPLATE = """
+    Create a multiple-choice quiz question about: {topic}
+
+    Difficulty level: {difficulty}
+
+    Please provide:
+    1. A clear question
+    2. 4 multiple choice options (A, B, C, D)
+    3. The correct answer
+    4. A brief explanation of why the answer is correct
+
+    Make the question challenging but fair for {difficulty} level.
+    """
+
+    DRILL_TEMPLATE = """
+    Create a practice exercise about: {topic}
+
+    Difficulty level: {difficulty}
+
+    Please provide:
+    1. Clear instructions for the exercise
+    2. 3-5 practice problems or tasks
+    3. Brief guidance on how to approach the problems
+
+    Focus on practical application and skill-building.
+    """
+
+    INTERACTIVE_TEMPLATE = """
+    Design an interactive learning activity about: {topic}
+
+    Difficulty level: {difficulty}
+
+    Please provide:
+    1. Activity description and objectives
+    2. Step-by-step interactive elements
+    3. Expected outcomes or deliverables
+
+    Make it engaging and hands-on for effective learning.
+    """
+
+
+class MicroCardGenerator:
+    """
+    Generates micro-cards using AI language models
+    """
+
+    def __init__(self, config: GenerationConfig = None):
+        """
+        Initialize the micro-card generator
+
+        Args:
+            config: Generation configuration
+        """
+        self.config = config or GenerationConfig()
+        self.device = self._get_device()
+        self.model = None
+        self.tokenizer = None
+        self.text_generator = None
+
+        # Initialize models
+        self._load_models()
+
+        # Content templates
+        self.templates = ContentTemplates()
+
+        # Embedding generator for content similarity
+        self.embedding_generator = EmbeddingGenerator()
+
+        # Setup logging
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
+
+    def _get_device(self) -> str:
+        """Determine the best device to use"""
+        if self.config.device == "auto":
+            return "cuda" if torch.cuda.is_available() else "cpu"
+        return self.config.device
+
+    def _load_models(self):
+        """Load the AI models for content generation"""
+        try:
+            self.logger.info(f"Loading model: {self.config.model_name}")
+
+            # For simplicity, we'll use a text generation pipeline
+            # In production, you might want more control over the model
+            self.text_generator = pipeline(
+                "text-generation",
+                model=self.config.model_name,
+                device=0 if self.device == "cuda" else -1,
+                torch_dtype=(
+                    torch.float16 if self.device == "cuda" else torch.float32
+                ),
+            )
+
+            self.logger.info("Models loaded successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error loading models: {e}")
+            # Fallback to a simpler approach
+            self.text_generator = None
+            self.logger.warning("Using fallback content generation")
+
+    def generate_micro_card(
+        self,
+        topic: str,
+        content_type: CardType,
+        difficulty: DifficultyLevel,
+        source_material: Optional[OERResource] = None,
+        user_context: Optional[Dict] = None,
+        ) -> Dict:
+        """
+        Generate a micro-card for a specific topic and type
+
+        Args:
+            topic: Learning topic
+            content_type: Type of micro-card to generate
+            difficulty: Difficulty level
+            source_material: Optional OER source material
+        user_context: Optional user learning context
+
+        Returns:
+        Generated micro-card content dictionary
+        """
+        self.logger.info(
+        f"Generating {content_type.value} card for " f"topic: {topic}"
+        )
+
+        # Prepare context
+        context = {
+        "topic": topic,
+        "difficulty": difficulty.value,
+        "audience": self._get_audience_description(difficulty),
+        "source_material": (
+            source_material.content if source_material else None
+        ),
+        }
+
+        # Generate content based on type
+        if content_type == CardType.CONCEPT:
+        return self._generate_concept_card(context, source_material)
+        elif content_type == CardType.QUIZ:
+        return self._generate_quiz_card(context, source_material)
+        elif content_type == CardType.DRILL:
+        return self._generate_drill_card(context, source_material)
+        elif content_type == CardType.INTERACTIVE:
+        return self._generate_interactive_card(context, source_material)
+        else:
+        return self._generate_fallback_card(context)
+
+    def _get_template(self, content_type: CardType) -> str:
+        """Get the appropriate template for content type"""
+        template_map = {
+        CardType.CONCEPT: self.templates.CONCEPT_TEMPLATE,
+        CardType.QUIZ: self.templates.QUIZ_TEMPLATE,
+        CardType.DRILL: self.templates.DRILL_TEMPLATE,
+        CardType.INTERACTIVE: self.templates.INTERACTIVE_TEMPLATE,
+        }
+        return template_map.get(content_type, self.templates.CONCEPT_TEMPLATE)
+
+    def _get_audience_description(self, difficulty: DifficultyLevel) -> str:
+        """Get audience description based on difficulty level"""
+        descriptions = {
+        DifficultyLevel.BEGINNER: "beginners with no prior knowledge",
+        DifficultyLevel.INTERMEDIATE: "learners with basic understanding",
+        DifficultyLevel.ADVANCED: "experienced learners seeking depth",
+        }
+        return descriptions.get(difficulty, "general learners")
+
+    def _generate_concept_card(
+        self, context: Dict, source_material: Optional[OERResource]
+        ) -> Dict:
+        """Generate a concept explanation card"""
+        if source_material and source_material.content:
+        # Extract key concepts from source material
+        text_content = self._extract_key_concepts(
+            source_material.content, context["topic"]
+        )
+        examples = self._generate_examples(
+            context["topic"], context["difficulty"]
+        )
+        else:
+        # Generate from scratch using AI or templates
+        text_content = self._generate_explanation(
+            context["topic"], context["difficulty"]
+        )
+        examples = self._generate_examples(
+            context["topic"], context["difficulty"]
+        )
+
+        return {
+        "text": text_content,
+        "examples": examples,
+        "key_points": self._extract_key_points(text_content),
+        }
+
+    def _generate_quiz_card(
+        self, context: Dict, source_material: Optional[OERResource]
+        ) -> Dict:
+        """Generate a quiz card with multiple choice questions"""
+        question = self._generate_question(
+        context["topic"], context["difficulty"]
+        )
+        options = self._generate_options(context["topic"], question)
+        correct_answer = options[0]  # First option is correct by design
+        random.shuffle(options)  # Shuffle to randomize correct position
+
+        return {
+        "question": question,
+        "options": options,
+        "correct_answer": correct_answer,
+        "explanation": self._generate_explanation_for_answer(
+            question, correct_answer
+        ),
+        }
+
+    def _generate_drill_card(
+        self, context: Dict, source_material: Optional[OERResource]
+        ) -> Dict:
+        """Generate a practice drill card"""
+        instructions = self._generate_drill_instructions(
+        context["topic"], context["difficulty"]
+        )
+        exercises = self._generate_practice_exercises(
+        context["topic"], context["difficulty"]
+        )
+
+        return {
+        "instructions": instructions,
+        "exercises": exercises,
+        "guidance": self._generate_guidance(context["topic"]),
+        }
+
+    def _generate_interactive_card(
+        self, context: Dict, source_material: Optional[OERResource]
+        ) -> Dict:
+        """Generate an interactive activity card"""
+        description = self._generate_activity_description(
+        context["topic"], context["difficulty"]
+        )
+        elements = self._generate_interactive_elements(context["topic"])
+
+        return {
+        "description": description,
+        "interactive_elements": elements,
+        "objectives": self._generate_learning_objectives(context["topic"]),
+        }
+
+    def _generate_fallback_card(self, context: Dict) -> Dict:
+        """Generate a basic fallback card when AI generation fails"""
+        return {
+        "text": f"Learn about {
+            context['topic']} at {
+            context['difficulty']} level.",
+        "examples": [
+            f"Example 1: Basic {
+                context['topic']} concept",
+            f"Example 2: Practical {
+                context['topic']} application",
+        ],
+        "key_points": [
+            f"Key point about {
+                context['topic']}",
+            f"Important aspect of {
+                context['topic']}",
+        ],
+        }
+
+    def _extract_key_concepts(self, source_content: str, topic: str) -> str:
+        """Extract key concepts from source material"""
+        # Simple extraction - in production, use more sophisticated NLP
+        sentences = source_content.split(".")
+        relevant_sentences = [
+        s.strip()
+        for s in sentences
+        if topic.lower() in s.lower() and len(s.strip()) > 20
+        ]
+
+        if relevant_sentences:
+        # Take first 2-3 most relevant sentences
+        return ". ".join(relevant_sentences[:3]) + "."
+        else:
+        return f"This topic covers important concepts related to {topic}."
+
+    def _generate_explanation(self, topic: str, difficulty: str) -> str:
+        """Generate explanation text for a topic"""
+        if self.text_generator:
+        try:
+            prompt = f"Explain {topic} for {difficulty} level learners:"
+            result = self.text_generator(
+                prompt,
+                max_length=self.config.max_length,
+                temperature=self.config.temperature,
+                pad_token_id=self.text_generator.tokenizer.eos_token_id,
+            )
+            generated_text = result[0]["generated_text"]
+            # Clean up the generated text
+            explanation = generated_text.replace(prompt, "").strip()
+            return explanation[:500]  # Limit length
+        except Exception as e:
+            self.logger.error(f"Error in AI generation: {e}")
+
+        # Fallback explanation
+        return f"{topic} is an important concept that involves understanding key principles and applications. This knowledge forms the foundation for more advanced learning in this area."
+
+    def _generate_examples(self, topic: str, difficulty: str) -> List[str]:
+        """Generate examples for a topic"""
+        # Template-based example generation
+        examples = []
+
+        if "python" in topic.lower() or "programming" in topic.lower():
+        examples = [
+            "x = 10  # Variable assignment",
+            "print('Hello, World!')  # Output statement",
+            "if x > 5: print('Greater')  # Conditional statement",
+        ]
+        elif "math" in topic.lower() or "algebra" in topic.lower():
+        examples = [
+            "2x + 3 = 7, so x = 2",
+            "Area of circle = πr²",
+            "Slope = (y₂ - y₁) / (x₂ - x₁)",
+        ]
+        else:
+        examples = [
+            f"Basic example of {topic}",
+            f"Practical application of {topic}",
+            f"Advanced use case for {topic}",
+        ]
+
+        return examples[:3]  # Limit to 3 examples
+
+    def _extract_key_points(self, text: str) -> List[str]:
+        """Extract key points from text"""
+        sentences = text.split(".")
+        # Simple heuristic: shorter sentences are often key points
+        key_points = [
+        s.strip() for s in sentences if 10 < len(s.strip()) < 100
+        ]
+        return key_points[:3]  # Limit to 3 key points
+
+    def _generate_question(self, topic: str, difficulty: str) -> str:
+        """Generate a quiz question"""
+        question_starters = [
+        "What is the main purpose of",
+        "Which of the following best describes",
+        "How does",
+        "What happens when",
+        "Which statement about",
+        ]
+
+        starter = random.choice(question_starters)
+        return f"{starter} {topic}?"
+
+    def _generate_options(self, topic: str, question: str) -> List[str]:
+        """Generate multiple choice options"""
+        # Template-based option generation
+        correct_option = f"The correct understanding of {topic}"
+
+        incorrect_options = [
+        f"A common misconception about {topic}",
+        f"An unrelated concept to {topic}",
+        f"An oversimplified view of {topic}",
+        ]
+
+        return [correct_option] + incorrect_options
+
+    def _generate_explanation_for_answer(
+        self, question: str, answer: str
+        ) -> str:
+        """Generate explanation for quiz answer"""
+        return f"This is correct because it accurately represents the core concept being tested in the question."
+
+    def _generate_drill_instructions(self, topic: str, difficulty: str) -> str:
+        """Generate instructions for practice drills"""
+        return f"Practice these {topic} exercises to reinforce your understanding. Work through each problem step by step."
+
+    def _generate_practice_exercises(
+        self, topic: str, difficulty: str
+        ) -> List[str]:
+        """Generate practice exercises"""
+        if "python" in topic.lower():
+        exercises = [
+            "Write a function that returns the square of a number",
+            "Create a list of even numbers from 1 to 10",
+            "Use a loop to print numbers from 1 to 5",
+        ]
+        elif "math" in topic.lower():
+        exercises = [
+            "Solve: 3x + 7 = 16",
+            "Find the area of a rectangle with length 8 and width 5",
+            "Calculate the percentage: 25 out of 200",
+        ]
+        else:
+        exercises = [
+            f"Apply the principles of {topic} to solve a simple problem",
+            f"Identify key components in a {topic} scenario",
+            f"Explain how {topic} works in your own words",
+        ]
+
+        return exercises
+
+    def _generate_guidance(self, topic: str) -> str:
+        """Generate guidance for exercises"""
+        return f"When working with {topic}, remember to break down complex problems into smaller steps and verify your understanding."
+
+    def _generate_activity_description(
+        self, topic: str, difficulty: str
+        ) -> str:
+        """Generate description for interactive activities"""
+        return f"Engage with {topic} through hands-on activities designed for {difficulty} level learners."
+
+    def _generate_interactive_elements(self, topic: str) -> List[Dict]:
+        """Generate interactive elements for activities"""
+        return [
+        {
+            "type": "text_input",
+            "prompt": f"Enter your understanding of {topic}",
+        },
+        {
+            "type": "multiple_choice",
+            "question": f"Which best describes {topic}?",
+        },
+        {
+            "type": "drag_drop",
+            "instruction": f"Match {topic} concepts with examples",
+        },
+        ]
+
+    def _generate_learning_objectives(self, topic: str) -> List[str]:
+        """Generate learning objectives"""
+        return [
+        f"Understand the core concepts of {topic}",
+        f"Apply {topic} principles to practical scenarios",
+        f"Identify key relationships within {topic}",
+        ]
+
+    def assess_content_quality(
+        self, content: Dict, content_type: CardType
+        ) -> float:
+        """
+        Assess the quality of generated content
+
+        Args:
+        content: Generated content dictionary
+        content_type: Type of content
+
+        Returns:
+        Quality score (0.0 to 1.0)
+        """
+        score = 0.0
+
+        # Check content completeness
+        required_fields = self._get_required_fields(content_type)
+        completeness_score = sum(
+        1 for field in required_fields if field in content
+        ) / len(required_fields)
+        score += completeness_score * 0.3
+
+        # Check content length and substance
+        if content_type == CardType.CONCEPT:
+        text_content = content.get("text", "")
+        if 50 <= len(text_content) <= 500:  # Good length range
+            score += 0.2
+        if content.get("examples") and len(content["examples"]) >= 2:
+            score += 0.2
+
+        elif content_type == CardType.QUIZ:
+        question = content.get("question", "")
+        options = content.get("options", [])
+        if len(question) > 10 and len(options) == 4:
+            score += 0.4
+
+        # Check for educational value indicators
+        text_to_check = str(content).lower()
+        educational_keywords = [
+        "learn",
+        "understand",
+        "concept",
+        "example",
+        "practice",
+        "apply",
+        ]
+        keyword_score = sum(
+        1 for keyword in educational_keywords if keyword in text_to_check
+        )
+        score += min(keyword_score / len(educational_keywords), 0.3)
+
+        # Final score between 0 and 1
+        return min(score, 1.0)
+
+    def _get_required_fields(self, content_type: CardType) -> List[str]:
+        """Get required fields for each content type"""
+        field_map = {
+        CardType.CONCEPT: ["text", "examples"],
+        CardType.QUIZ: ["question", "options", "correct_answer"],
+        CardType.DRILL: ["instructions", "exercises"],
+        CardType.INTERACTIVE: ["description", "interactive_elements"],
+        }
+        return field_map.get(content_type, ["text"])
+
+    def generate_batch_cards(
+        self,
+        topics: List[str],
+        content_types: List[CardType],
+        difficulty: DifficultyLevel,
+        source_materials: Optional[List[OERResource]] = None,
+        ) -> List[Dict]:
+        """
+        Generate multiple micro-cards efficiently
+
+        Args:
+        topics: List of topics to generate cards for
+        content_types: List of content types to generate
+        difficulty: Difficulty level
+        source_materials: Optional list of source materials
+
+        Returns:
+        List of generated micro-card dictionaries
+        """
+        self.logger.info(f"Generating batch of {len(topics)} cards")
+
+        generated_cards = []
+
+        for i, topic in enumerate(topics):
+        for content_type in content_types:
+            source_material = None
+            if source_materials and i < len(source_materials):
+                source_material = source_materials[i]
+
+            try:
+                card_content = self.generate_micro_card(
+                    topic=topic,
+                    content_type=content_type,
+                    difficulty=difficulty,
+                    source_material=source_material,
+                )
+
+                # Assess quality
+                quality_score = self.assess_content_quality(
+                    card_content, content_type
+                )
+
+                card_data = {
+                    "title": f"{topic} - {content_type.value.title()}",
+                    "content": card_content,
+                    "content_type": content_type,
+                    "difficulty_level": difficulty,
+                    "quality_score": quality_score,
+                    "generated_by_ai": True,
+                    "generation_timestamp": datetime.now(
+                        timezone.utc
+                    ).isoformat(),
+                }
+
+                generated_cards.append(card_data)
+
+            except Exception as e:
+                self.logger.error(
+                    f"Error generating card for {topic}: {e}"
+                )
+                continue
+
+        self.logger.info(
+        f"Successfully generated {
+            len(generated_cards)} cards"
+        )
+        return generated_cards
+
+
+class ContentPersonalizer:
+        """
+        Personalizes micro-card content based on user learning history and preferences
+        """
+
+    def __init__(self, generator: MicroCardGenerator):
+        """
+        Initialize content personalizer
+
+        Args:
+        generator: MicroCardGenerator instance
+        """
+        self.generator = generator
+        self.logger = logging.getLogger(__name__)
+
+    def personalize_content(
+        self,
+        base_content: Dict,
+        user_history: List[Dict],
+        user_preferences: Dict,
+        ) -> Dict:
+        """
+        Personalize content based on user data
+
+        Args:
+        base_content: Base generated content
+        user_history: User's learning history
+        user_preferences: User preferences
+
+        Returns:
+        Personalized content dictionary
+        """
+        personalized = base_content.copy()
+
+        # Adjust difficulty based on user performance
+        avg_performance = self._calculate_average_performance(user_history)
+        if avg_performance > 0.8:  # High performer
+        personalized = self._increase_difficulty(personalized)
+        elif avg_performance < 0.5:  # Struggling learner
+        personalized = self._decrease_difficulty(personalized)
+
+        # Adapt content style based on preferences
+        preferred_style = user_preferences.get("learning_style", "balanced")
+        if preferred_style == "visual":
+        personalized = self._add_visual_elements(personalized)
+        elif preferred_style == "practical":
+        personalized = self._emphasize_examples(personalized)
+
+        return personalized
+
+    def _calculate_average_performance(
+        self, user_history: List[Dict]
+        ) -> float:
+        """Calculate user's average performance from history"""
+        if not user_history:
+        return 0.5  # Default average
+
+        scores = [item.get("performance_score", 0.5) for item in user_history]
+        return sum(scores) / len(scores)
+
+    def _increase_difficulty(self, content: Dict) -> Dict:
+        """Increase content difficulty"""
+        # Add more complex examples or advanced concepts
+        if "examples" in content:
+        content["examples"].append("Advanced application scenario")
+        return content
+
+    def _decrease_difficulty(self, content: Dict) -> Dict:
+        """Decrease content difficulty"""
+        # Simplify language and add more basic examples
+        if "text" in content:
+        content["text"] = content["text"].replace("advanced", "basic")
+        return content
+
+    def _add_visual_elements(self, content: Dict) -> Dict:
+        """Add visual learning elements"""
+        content["visual_aids"] = ["Diagram suggestion", "Chart reference"]
+        return content
+
+    def _emphasize_examples(self, content: Dict) -> Dict:
+        """Emphasize practical examples"""
+        if "examples" in content and len(content["examples"]) < 5:
+        content["examples"].append("Additional practical example")
+        return content

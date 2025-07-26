@@ -1,1 +1,1 @@
-export { MicroCardDemo } from './MicroCardDemo';
+export { default as MicroCardDemo } from './MicroCardDemo';

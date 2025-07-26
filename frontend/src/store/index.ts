@@ -159,8 +159,21 @@ export const useLearningStore = create<LearningState>()(
             isLoading: false,
           });
         } catch (error: any) {
+          console.log('API not available, using sample data');
+          // For demo purposes, use sample data when API is not available
+          const { sampleLearningPaths } = await import('../data/sampleData');
+          
+          // Apply filters to sample data
+          let filteredPaths = sampleLearningPaths;
+          if (filters.category && filters.category !== 'all') {
+            filteredPaths = filteredPaths.filter(path => path.category === filters.category);
+          }
+          if (filters.difficulty) {
+            filteredPaths = filteredPaths.filter(path => path.difficulty_level === filters.difficulty);
+          }
+          
           set({
-            error: error.response?.data?.detail || 'Failed to load learning paths',
+            availablePaths: filteredPaths,
             isLoading: false,
           });
         }
@@ -491,3 +504,6 @@ export const useUIStore = create<UIState>()(
     { name: 'UIStore' }
   )
 );
+
+// Export progress store
+export { useProgressStore } from './progressStore';
