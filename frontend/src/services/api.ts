@@ -375,6 +375,136 @@ class ApiService {
     };
   }
 
+  // Enhanced AI-Powered Features
+  async getPersonalizedRecommendations(limit: number = 10): Promise<ApiResponse<any[]>> {
+    const response = await this.api.get(`/recommendations?limit=${limit}`);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async generateAIContent(request: {
+    topic: string;
+    difficulty?: string;
+    learning_style?: string;
+    context?: string;
+    card_type?: string;
+  }): Promise<ApiResponse<MicroCard>> {
+    const response = await this.api.post('/ai/generate-content', request);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async createPersonalizedPath(request: {
+    topic: string;
+    skill_level?: string;
+    goals?: string[];
+    time_commitment?: number;
+    preferred_topics?: string[];
+  }): Promise<ApiResponse<any>> {
+    const response = await this.api.post('/ai/create-path', request);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async optimizeStudySchedule(): Promise<ApiResponse<any>> {
+    const response = await this.api.post('/ai/optimize-review');
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async createStudySession(request: {
+    duration_minutes: number;
+    focus_areas?: string[];
+    session_type?: string;
+    difficulty_preference?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.api.post('/study/session', request);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  // Enhanced Analytics and Progress
+  async getDetailedAnalytics(days: number = 30): Promise<ApiResponse<any>> {
+    const response = await this.api.get(`/users/me/analytics?days=${days}`);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async getComprehensiveProgress(): Promise<ApiResponse<any>> {
+    const response = await this.api.get('/users/me/progress');
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async getDueReviews(): Promise<ApiResponse<MicroCard[]>> {
+    const response = await this.api.get('/reviews/due');
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async getNextBestCard(sessionCards?: string[]): Promise<ApiResponse<any>> {
+    const params = sessionCards ? { session_cards: sessionCards.join(',') } : {};
+    const response = await this.api.get('/recommendations/next-card', { params });
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  async getStudyPathRecommendation(request: {
+    topic?: string;
+    duration_minutes: number;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.api.post('/recommendations/study-path', request);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  // Enhanced Review System
+  async submitEnhancedReview(reviewData: {
+    card_id: string;
+    result: string;
+    response_time?: number;
+    confidence?: number;
+    study_session_id?: string;
+    notes?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await this.api.post('/reviews', reviewData);
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
+  // Collaboration Features
+
+  // Health Check
+  async healthCheck(): Promise<ApiResponse<any>> {
+    const response = await this.api.get('/health');
+    return {
+      data: response.data,
+      status: 'success',
+    };
+  }
+
   // Utility Methods
   isAuthenticated(): boolean {
     return !!this.accessToken;
